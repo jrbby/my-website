@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🦄 2026 萌马好运屋</title>
+    <style>
+        /* --- 1. 基础环境 --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Varela Round", "Microsoft YaHei", sans-serif;
+            background-color: #fffaf0; 
+            background-image: radial-gradient(circle at 50% 30%, #fff3e0 0%, #fffaf0 70%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #5d4037;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- 2. 背景装饰 --- */
+        .bg-deco {
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatUpDown 6s ease-in-out infinite;
+            opacity: 0.8; 
+            filter: drop-shadow(2px 2px 0px rgba(255, 171, 145, 0.5));
+            font-size: 32px;
+        }
+        .d1 { top: 10%; left: 5%; font-size: 40px; animation-delay: 0s; }
+        .d2 { top: 15%; right: 8%; animation-delay: 1s; }
+        .d3 { bottom: 10%; left: 8%; font-size: 35px; animation-delay: 2s; }
+        .d4 { bottom: 15%; right: 5%; font-size: 28px; animation-delay: 3s; }
+        .d5 { top: 40%; left: -10px; font-size: 50px; opacity: 0.4; } 
+        .d6 { top: 50%; right: -10px; font-size: 45px; opacity: 0.4; }
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* --- 3. 标题 --- */
+        header {
+            margin-top: 40px;
+            text-align: center;
+            z-index: 2;
+        }
+        .title-box {
+            background: #ff7043;
+            color: #fff;
+            padding: 8px 25px;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: 800;
+            box-shadow: 0 5px 0 #d84315;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        .subtitle {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #8d6e63;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        /* --- 4. 九宫格 --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 25px;
+            width: 100%;
+            max-width: 360px;
+            margin-top: 10px;
+            z-index: 2;
+        }
+
+        /* --- 5. 卡片 --- */
+        .card-scene {
+            aspect-ratio: 1 / 1.15;
+            perspective: 800px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            /* 翻转动画 0.6s */
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 20px;
+            transform-origin: center center;
+        }
+
+        /* 呼吸动画：只在有这个类名时执行 */
+        .card.breathing {
+            animation: breathe 3s infinite ease-in-out;
+        }
+        
+        /* 错开呼吸 */
+        .card-scene:nth-child(3n+1) .card.breathing { animation-delay: 0s; }
+        .card-scene:nth-child(3n+2) .card.breathing { animation-delay: 1s; }
+        .card-scene:nth-child(3n+3) .card.breathing { animation-delay: 2s; }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #fff;
+            box-shadow: 0 6px 10px rgba(255, 171, 145, 0.3);
+            background: #fff;
+            left: 0; top: 0; box-sizing: border-box;
+        }
+
+        .card-front {
+            background: #ffab91;
+        }
+
+        /* 马耳朵 */
+        .card-front::before, .card-front::after {
+            content: "";
+            position: absolute;
+            top: -10px;
+            width: 14px;
+            height: 22px;
+            background: #ffab91;
+            border-radius: 10px;
+            border: 3px solid #fff;
+            z-index: -1;
+        }
+        .card-front::before { left: 18px; transform: rotate(-20deg); }
+        .card-front::after { right: 18px; transform: rotate(20deg); }
+
+        /* --- 修复后的表情包样式 --- */
+        .face {
+            position: relative;
+            width: 60px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        
+        /* 1. 普通圆点眼 (● ●) */
+        .eye {
+            position: absolute;
+            top: 13px; /* 统一高度 */
+            width: 7px;
+            height: 7px;
+            background: #5d4037;
+            border-radius: 50%;
+            animation: blink 4s infinite;
+        }
+        .eye.left { left: 12px; }
+        .eye.right { right: 12px; }
+        
+        /* 2. 开心眯眯眼 (^ ^) */
+        /* 使用 border 绘制，不再旋转整个 div，保证定位准确 */
+        .eye.happy {
+            width: 8px; height: 8px;
+            background: transparent;
+            border-top: 2px solid #5d4037;
+            border-right: 2px solid #5d4037;
+            border-radius: 0;
+            animation: none; /* 眯眼时不眨眼 */
+            top: 15px; /* 稍微下移一点视觉平衡 */
+            transform: rotate(-45deg); /* 旋转变成 ^ */
+        }
+        /* 左右一样，都是 ^ ^ */
+        .eye.happy.left { left: 12px; }
+        .eye.happy.right { right: 12px; }
+
+        /* 3. 弯弯眼 (n n) */
+        .eye.arch {
+            width: 9px; height: 5px;
+            background: transparent;
+            border-top: 2px solid #5d4037;
+            border-left: 2px solid transparent; 
+            border-right: 2px solid transparent;
+            border-radius: 50% 50% 0 0;
+            animation: none;
+            top: 15px;
+        }
+        .eye.arch.left { left: 11px; }
+        .eye.arch.right { right: 11px; }
+
+        /* 嘴巴 */
+        .mouth {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 4px;
+            border-bottom: 2px solid #5d4037;
+            border-radius: 50%;
+        }
+        /* 嘴巴变体：O型 */
+        .mouth.o {
+            width: 5px; height: 5px;
+            border: 2px solid #5d4037;
+            background: #5d4037;
+            border-radius: 50%;
+        }
+        /* 嘴巴变体：大笑 */
+        .mouth.big {
+            width: 10px; height: 5px;
+            border-bottom: 2px solid #5d4037;
+        }
+
+        .blush {
+            position: absolute;
+            top: 25px;
+            width: 14px;
+            height: 6px;
+            background: #ffccbc;
+            opacity: 0.6;
+            border-radius: 50%;
+        }
+        .blush.left { left: 0; }
+        .blush.right { right: 0; }
+
+        .prompt-badge {
+            background: #fff;
+            color: #ff7043;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+        }
+
+        /* --- 背面 --- */
+        .card-back {
+            background: #fff;
+            transform: rotateY(180deg);
+            border-color: #ffccbc;
+        }
+        .prize-val { font-size: 26px; font-weight: 900; color: #ff5722; margin-bottom: 4px; }
+        .prize-tag { font-size: 11px; color: #a1887f; }
+
+        /* --- 弹窗 --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 248, 240, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+        .modal {
+            background: #fff;
+            width: 75%;
+            padding: 30px 20px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 112, 67, 0.15);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid #fff3e0;
+        }
+        .modal-icon { font-size: 48px; margin-bottom: 10px; display: inline-block; }
+        .modal-title { color: #8d6e63; font-size: 16px; margin-bottom: 5px; }
+        .modal-val { color: #ff5722; font-size: 38px; font-weight: 900; margin: 5px 0 15px; }
+        .modal-desc { color: #a1887f; font-size: 13px; line-height: 1.5; margin-bottom: 25px; }
+        .close-btn {
+            background: linear-gradient(to right, #ffab91, #ff7043);
+            color: #fff; border: none;
+            padding: 10px 40px; border-radius: 50px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 5px 10px rgba(255, 112, 67, 0.2);
+        }
+
+        @keyframes breathe { 
+            0%,100% { transform: scale(1); } 
+            50% { transform: scale(0.96); } 
+        }
+        @keyframes blink { 0%,90%,100%{transform:scaleY(1);} 95%{transform:scaleY(0.1);} }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+        @keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+
+        .confetti { position: fixed; top: -10px; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 1000; }
+        .disabled-grid { opacity: 0.6; filter: grayscale(0.5); pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-deco d1">☁️</div>
+    <div class="bg-deco d2">✨</div>
+    <div class="bg-deco d3">🌸</div>
+    <div class="bg-deco d4">🍬</div>
+    <div class="bg-deco d5">☁️</div>
+    <div class="bg-deco d6">✨</div>
+
+    <header>
+        <div class="title-box">🦄 2026 萌马好运</div>
+        <br>
+        <div class="subtitle">剩余机会 <span id="chance" style="color:#ff5722;font-weight:bold;">3</span> 次</div>
+    </header>
+
+    <div class="grid-container" id="grid">
+        <!-- 卡片 JS 生成 -->
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-icon" id="m-icon">🎁</div>
+            <div class="modal-title" id="m-title"></div>
+            <div class="modal-val" id="m-val"></div>
+            <div class="modal-desc" id="m-desc"></div>
+            <button class="close-btn" onclick="closeModal()">开心收下</button>
+        </div>
+    </div>
+
+    <script>
+        const prizes = [
+            { t:'m', v:'188', i:'🦄', d:'哇！欧气爆棚！<br>2026 马上暴富！' },
+            { t:'m', v:'99',  i:'💖', d:'长长久久<br>幸福美满一整年！' },
+            { t:'m', v:'88',  i:'💰', d:'恭喜发财<br>大吉大利 万事顺！' },
+            { t:'m', v:'66',  i:'✨', d:'六六大顺<br>好运一直陪着你！' },
+            { t:'m', v:'50',  i:'🍗', d:'小手一气<br>午饭加个大鸡腿！' },
+            { t:'w', v:'马到<br>成功', i:'🌈', d:'心想事成<br>所有愿望都灵验！' },
+            { t:'w', v:'元气<br>满满', i:'💪', d:'身体健康<br>每天都活力四射！' },
+            { t:'x', v:'谢谢<br>参与', i:'🥺', d:'虽然没中<br>但送你一个大大的拥抱！' },
+            { t:'x', v:'谢谢<br>参与', i:'🍀', d:'哎呀差一点点<br>明年运气一定爆棚！' }
+        ];
+
+        const promptWords = ['点我', '好运', '开启', '暴富', '必中', '开心'];
+        let chances = 3;
+        let deck = [];
+        let canClick = true;
+
+        function init() {
+            deck = [...prizes];
+            // 洗牌
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            render();
+        }
+
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            deck.forEach((item, i) => {
+                const scene = document.createElement('div');
+                scene.className = 'card-scene';
+                const word = promptWords[i % promptWords.length];
+
+                // --- 修复后的随机表情 ---
+                const rEye = Math.random();
+                let eyeCls = 'eye'; 
+                if (rEye > 0.66) eyeCls = 'eye happy'; // ^ ^
+                else if (rEye > 0.33) eyeCls = 'eye arch'; // n n
+                
+                const rMouth = Math.random();
+                let mouthCls = 'mouth';
+                if (rMouth > 0.66) mouthCls = 'mouth o';
+                else if (rMouth > 0.33) mouthCls = 'mouth big';
+
+                scene.innerHTML = `
+                    <div class="card breathing" onclick="flip(${i}, this)">
+                        <div class="card-face card-front">
+                            <div class="face">
+                                <div class="${eyeCls} left"></div>
+                                <div class="${eyeCls} right"></div>
+                                <div class="blush left"></div>
+                                <div class="blush right"></div>
+                                <div class="${mouthCls}"></div>
+                            </div>
+                            <div class="prompt-badge">${word}</div>
+                        </div>
+                        <div class="card-face card-back">
+                            <div class="prize-val" style="${item.t==='x'?'color:#ccc;font-size:22px':''}">${item.t==='m'?'¥':''}${item.v}</div>
+                            <div class="prize-tag">${item.t==='x'?'再接再厉':'恭喜恭喜'}</div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(scene);
+            });
+        }
+
+        function flip(index, card) {
+            if (!canClick || chances <= 0 || card.classList.contains('is-flipped')) return;
+            
+            canClick = false; 
+            chances--;
+            document.getElementById('chance').innerText = chances;
+
+            // 1. 停止呼吸 (解决位移问题)
+            card.classList.remove('breathing');
+            
+            // 2. 强制重绘
+            void card.offsetWidth;
+
+            // 3. 翻转
+            card.classList.add('is-flipped');
+            
+            // 4. 等待翻转结束 (700ms)
+            setTimeout(() => {
+                showResult(deck[index]);
+                canClick = true;
+            }, 700); 
+
+            if (chances === 0) {
+                setTimeout(() => {
+                    document.getElementById('grid').classList.add('disabled-grid');
+                }, 700);
+            }
+        }
+
+        function showResult(item) {
+            const m = document.getElementById('modal');
+            const mt = document.getElementById('m-title');
+            const mv = document.getElementById('m-val');
+            const md = document.getElementById('m-desc');
+            const mi = document.getElementById('m-icon');
+
+            mi.innerText = item.i;
+            mv.innerHTML = (item.t==='m'?'¥':'') + item.v;
+            md.innerHTML = item.d;
+
+            if (item.t === 'x') {
+                mt.innerText = "遗憾错过";
+                mv.style.color = "#ccc";
+                mv.style.fontSize = "28px";
+            } else {
+                mt.innerText = "🎉 恭喜获得";
+                mv.style.color = "#ff7043";
+                mv.style.fontSize = "40px";
+                fireConfetti();
+            }
+            m.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function fireConfetti() {
+            const colors = ['#ffab91', '#ffe082', '#a5d6a7', '#80deea', '#f48fb1'];
+            for(let i=0; i<40; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti';
+                p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animation = `fall ${Math.random()*2+2}s linear forwards`;
+                document.body.appendChild(p);
+                setTimeout(()=>p.remove(), 4000);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
